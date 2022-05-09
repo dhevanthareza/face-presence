@@ -15,7 +15,7 @@ class RestClient {
         headers: {"Accept": "application/json"},
         connectTimeout: 30000,
         receiveTimeout: 30000,
-        baseUrl: '${AppConfig.gateway}/api',
+        baseUrl: '${AppConfig.gateway}',
       ),
     );
     dio.interceptors.add(
@@ -37,7 +37,7 @@ class RestClient {
     if (response == null) {
       throw AppException(message: 'Tidak dapat terkoneksi dengan API');
     }
-    _handleResponse(response);
+    return _handleResponse(response);
   }
 
   static dynamic _returnErr(DioError err) {
@@ -62,28 +62,28 @@ class RestClient {
         return responseJson;
       case 400:
         throw AppException(
-          message: response.data['error']['message'] ?? 'Undefined Error 400',
+          message: response.data['message'] ?? 'Undefined Error 400',
         );
       case 401:
         // AppAuth.logout();
         throw AppException(
-          message: response.data['error']['message'] ?? 'Undefined Error 401',
+          message: response.data['message'] ?? 'Undefined Error 401',
         );
       case 403:
         throw AppException(
-          message: response.data['error']['message'] ?? 'Undefined Error 403',
+          message: response.data['message'] ?? 'Undefined Error 403',
         );
       case 404:
         throw AppException(
-          message: response.data['error']['message'] ?? 'Undefined Error 404',
+          message: response.data['message'] ?? 'Undefined Error 404',
         );
       case 422:
         throw AppException(
-          message: response.data['error']['message'] ?? 'Undefined Error 422',
+          message: response.data['message'] ?? 'Undefined Error 422',
         );
       case 500:
         throw AppException(
-          message: response.data['error']['message'] ?? 'Undefined Error 422',
+          message: response.data['message'] ?? 'Undefined Error 422',
         );
       default:
         throw AppException(
@@ -100,6 +100,7 @@ class RestClient {
       dynamic response =
           await _client.get(url, queryParameters: queryParameter);
       responseJson = _returnResponse(response);
+      return responseJson;
     } on SocketException {
       throw AppException(message: 'No Internet connection');
     } on DioError catch (err) {
@@ -115,6 +116,7 @@ class RestClient {
       Dio _client = await client();
       response = await _client.post(url, data: data);
       responseJson = _returnResponse(response);
+      return responseJson;
     } on SocketException {
       throw AppException(message: 'No Internet connection');
     } on DioError catch (err) {
@@ -130,6 +132,7 @@ class RestClient {
       Dio _client = await client();
       response = await _client.patch(url, data: data);
       responseJson = _returnResponse(response);
+      return responseJson;
     } on SocketException {
       throw AppException(message: 'No Internet connection');
     } on DioError catch (err) {
@@ -145,6 +148,7 @@ class RestClient {
       Dio _client = await client();
       response = await _client.delete(url, data: data);
       responseJson = _returnResponse(response);
+      return responseJson;
     } on SocketException {
       throw AppException(message: 'No Internet connection');
     } on DioError catch (err) {

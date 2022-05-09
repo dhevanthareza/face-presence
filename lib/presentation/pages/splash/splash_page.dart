@@ -18,7 +18,7 @@ class SplashPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "AIRPLANE",
+                "Face Presence",
                 style: AppText.H1(color: Colors.white),
               )
             ],

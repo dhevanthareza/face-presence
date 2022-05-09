@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -5,6 +7,7 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_jett_boilerplate/data/repositories/auth.repository.dart';
 import 'package:flutter_jett_boilerplate/domain/service/camera/camera_service.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image/image.dart' as imglib;
@@ -95,15 +98,15 @@ class FaceDetectorService {
     if (Platform.isAndroid) {
       delegate = GpuDelegateV2(
           options: GpuDelegateOptionsV2(
-        false,
-        TfLiteGpuInferenceUsage.fastSingleAnswer,
-        TfLiteGpuInferencePriority.minLatency,
-        TfLiteGpuInferencePriority.auto,
-        TfLiteGpuInferencePriority.auto,
+        isPrecisionLossAllowed: false,
+        inferencePreference: TfLiteGpuInferenceUsage.fastSingleAnswer,
+        inferencePriority1: TfLiteGpuInferencePriority.minLatency,
+        inferencePriority2: TfLiteGpuInferencePriority.auto,
+        inferencePriority3: TfLiteGpuInferencePriority.auto,
       ));
     } else if (Platform.isIOS) {
       delegate = GpuDelegate(
-        options: GpuDelegateOptions(true, TFLGpuDelegateWaitType.active),
+        options: GpuDelegateOptions(allowPrecisionLoss: true, waitType: TFLGpuDelegateWaitType.active),
       );
     }
     var interpreterOptions = InterpreterOptions()..addDelegate(delegate!);
@@ -116,8 +119,6 @@ class FaceDetectorService {
     interpreter.run(input, output);
     output = output.reshape([192]);
     List features = List.from(output);
-    print("===========featuresss");
-    print(features);
     return features;
   }
 
@@ -129,7 +130,7 @@ class FaceDetectorService {
     return imageAsList;
   }
 
-  double euclideanDistance(List? e1, List? e2) {
+  static double euclideanDistance(List? e1, List? e2) {
     if (e1 == null || e2 == null) throw Exception("Null argument");
 
     double sum = 0.0;

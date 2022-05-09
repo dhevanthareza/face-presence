@@ -7,9 +7,16 @@ import 'package:flutter_jett_boilerplate/domain/entities/auth/user.entity.dart';
 class UserService {
   static Future<UserEntity> login(String email, String password) async {
     AuthEntity auth = await UserRepository.login(email, password);
-    AuthRepository.saveToken(auth.accessToken!);
+    await AuthRepository.saveToken(auth.accessToken!);
     UserEntity user = await UserRepository.getUserData();
-    UserRepository.getSaveUserData(user.toJson());
+    await UserRepository.saveUserData(user.toJson());
+    return user;
+  }
+  static Future<UserEntity> register(Map<String, dynamic> payload) async {
+    AuthEntity auth = await UserRepository.register(payload);
+    await AuthRepository.saveToken(auth.accessToken!);
+    UserEntity user = await UserRepository.getUserData();
+    await UserRepository.saveUserData(user.toJson());
     return user;
   }
 }

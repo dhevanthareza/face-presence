@@ -11,16 +11,26 @@ class LoginPageController extends GetxController {
 
   void login() async {
     showLoadingDialog();
-    try {
-      await UserService.login(emailTextController.text, passwordTextController.text);
-      Get.offAllNamed("/home");
-      hideLoadingDialog();
-    } on AppException catch (err) {
-      Get.snackbar(
-        "Gagal Login",
-        StringUtils.getOrElse(err.message, "_"),
-      );
-      hideLoadingDialog();
-    }
+    // try {
+    await UserService.login(
+        emailTextController.text, passwordTextController.text);
+    Get.offAllNamed("/home");
+    hideLoadingDialog();
+    goToHome();
+    // } on AppException catch (err) {
+    //   Get.snackbar(
+    //     "Gagal Login",
+    //     StringUtils.getOrElse(err.message, "_"),
+    //   );
+    //   hideLoadingDialog();
+    // }
+  }
+
+  void goToRegister() {
+    Get.offAndToNamed("/user/register");
+  }
+
+  void goToHome() {
+    Get.offAndToNamed("/home");
   }
 }

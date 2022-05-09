@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jett_boilerplate/config.dart';
+import 'package:flutter_jett_boilerplate/data/const/app_color.dart';
 import 'package:flutter_jett_boilerplate/presentation/components/app_loading.dart';
 import 'package:flutter_jett_boilerplate/routes.dart';
 import 'package:get/get.dart';
@@ -24,6 +25,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+        primaryColor: AppColor.primaryColor,
+      ),
       builder: (BuildContext context, dynamic child) {
         return LoadingProvider(
           child: child,

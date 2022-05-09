@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jett_boilerplate/data/const/app_color.dart';
 import 'package:flutter_jett_boilerplate/data/const/app_text.dart';
@@ -16,10 +17,42 @@ class LoginPage extends StatelessWidget {
       builder: (state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          body: SafeArea(
-            child: ListView(
-              padding: EdgeInsets.all(20),
-              children: [title(), inputSection(state), submitButton(state)],
+          body: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 60),
+              child: Column(
+                children: [
+                  _headContent(),
+                  const SizedBox(height: 40),
+                  _formContent(state),
+                  const SizedBox(height: 60),
+                  AppButton(
+                    title: "Loign",
+                    onPressed: () {
+                      state.login();
+                    },
+                    width: double.infinity,
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: "Dont have an account ? ",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          TextSpan(
+                              text: " Register now",
+                              style: TextStyle(color: AppColor.primaryColor),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () => state.goToRegister())
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         );
@@ -27,51 +60,41 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget title() {
-    return Container(
-      margin: const EdgeInsets.only(top: 30),
-      child: Text(
-        "Login",
-        style: AppText.H1(color: AppColor.primaryColor),
-      ),
+  Widget _headContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Welcome Back 👋",
+          style: AppText.H1(color: AppColor.primaryColor),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "I am so happy to see you, you can continue to login for doing your presence",
+          style: TextStyle(color: AppColor.descriptionText),
+        ),
+      ],
     );
   }
 
-  Widget inputSection(LoginPageController state) {
-    Widget emailInput() {
-      return AppTextField(
-        hintText: "Your email adress",
-        title: "Email Address",
-        controller: state.emailTextController,
-      );
-    }
-
-    Widget passwordInput() {
-      return AppTextField(
-        title: "Password",
-        hintText: "Your password",
-        obscureText: true,
-        controller: state.passwordTextController,
-      );
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(top: 30),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        children: [emailInput(), passwordInput()],
-      ),
-    );
-  }
-
-  Widget submitButton(LoginPageController state) {
-    return AppButton(
-      title: "Login",
-      onPressed: () {
-        state.login();
-      },
+  Widget _formContent(state) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppTextField(
+          title: "Email",
+          hintText: "Email",
+          controller: state.emailTextController,
+        ),
+        const SizedBox(
+          height: 15,
+        ),
+        AppTextField(
+          title: "Password",
+          hintText: "Password",
+          controller: state.passwordTextController,
+        ),
+      ],
     );
   }
 }

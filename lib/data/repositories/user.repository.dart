@@ -10,6 +10,11 @@ class UserRepository {
       (await UserApi.login(email, password)).data,
     );
   }
+  static Future<AuthEntity> register(Map<String, dynamic> payload) async {
+    return AuthEntity.fromJson(
+      (await UserApi.register(payload)).data,
+    );
+  }
 
   static Future<UserEntity> getUserData() async {
     return UserEntity.fromJson(
@@ -17,11 +22,11 @@ class UserRepository {
     );
   }
 
-  static void getSaveUserData(Map<String, dynamic> userJson) {
-    GetStorage().write(AppGetKey.USER, userJson);
+  static Future<void> saveUserData(Map<String, dynamic> userJson) async {
+    await GetStorage().write(AppGetKey.USER, userJson);
   }
 
-  static UserEntity? getSavedUser() {
+  static UserEntity? getSavedUserData() {
     Map<String, dynamic>? userJson = GetStorage().read(AppGetKey.USER);
     if (userJson == null) {
       return null;

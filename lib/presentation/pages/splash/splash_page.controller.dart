@@ -11,10 +11,10 @@ class SplashPageController extends GetxController {
   }
 
   void checkUser() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      UserEntity? user = UserRepository.getSavedUser();
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      UserEntity? user = UserRepository.getSavedUserData();
       if (user == null) {
-        Get.offAllNamed("/user/auth");
+        Get.offAllNamed("/user/register");
       } else {
         Get.offAllNamed("/home");
       }
