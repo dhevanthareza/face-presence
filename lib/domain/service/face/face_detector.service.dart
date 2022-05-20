@@ -6,7 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jett_boilerplate/domain/service/camera/camera_service.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
@@ -14,30 +14,36 @@ class FaceDetectorService {
   static Future<List<Face>> detectFacesFromImage(
       CameraImage cameraImage, int rotation) async {
     final inputImage = camareImageToInputImage(cameraImage, rotation);
-    final faceDetector = GoogleMlKit.vision.faceDetector();
+    final faceDetector = FaceDetector(options: FaceDetectorOptions());
     final List<Face> faces = await faceDetector.processImage(inputImage);
     return faces;
   }
 
   static InputImage camareImageToInputImage(
       CameraImage cameraImage, int rotation) {
+    final WriteBuffer allBytes = WriteBuffer();
+    for (Plane plane in cameraImage.planes) {
+      allBytes.putUint8List(plane.bytes);
+    }
+    final bytes = allBytes.done().buffer.asUint8List();
+
     final inputImageData = InputImageData(
       size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
       imageRotation: CameraService.rotationIntToImageRotation(rotation),
-      inputImageFormat: InputImageFormat.BGRA8888,
+      inputImageFormat: InputImageFormat.bgra8888,
       planeData: cameraImage.planes.map(
-      (Plane plane) {
-        return InputImagePlaneMetadata(
-          bytesPerRow: plane.bytesPerRow,
-          height: plane.height,
-          width: plane.width,
-        );
-      },
-    ).toList(),
+        (Plane plane) {
+          return InputImagePlaneMetadata(
+            bytesPerRow: plane.bytesPerRow,
+            height: plane.height,
+            width: plane.width,
+          );
+        },
+      ).toList(),
     );
 
-    final inputImage =
-        InputImage.fromBytes(bytes: cameraImage.planes[0].bytes, inputImageData: inputImageData);
+    final inputImage = InputImage.fromBytes(
+        bytes: bytes, inputImageData: inputImageData);
     return inputImage;
   }
 
@@ -86,7 +92,8 @@ class FaceDetectorService {
       ));
     } else if (Platform.isIOS) {
       delegate = GpuDelegate(
-        options: GpuDelegateOptions(allowPrecisionLoss: true, waitType: TFLGpuDelegateWaitType.active),
+        options: GpuDelegateOptions(
+            allowPrecisionLoss: true, waitType: TFLGpuDelegateWaitType.active),
       );
     }
     var interpreterOptions = InterpreterOptions()..addDelegate(delegate!);

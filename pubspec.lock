@@ -85,13 +85,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.2"
-  cupertino_icons:
-    dependency: "direct main"
-    description:
-      name: cupertino_icons
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.4"
   dio:
     dependency: "direct main"
     description:
@@ -163,13 +156,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
-  google_ml_kit:
-    dependency: "direct main"
+  google_mlkit_commons:
+    dependency: transitive
     description:
-      name: google_ml_kit
+      name: google_mlkit_commons
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.7.3"
+    version: "0.2.0"
+  google_mlkit_face_detection:
+    dependency: "direct main"
+    description:
+      name: google_mlkit_face_detection
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.0"
   http_parser:
     dependency: transitive
     description:
@@ -212,13 +212,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
-  logger:
-    dependency: "direct main"
-    description:
-      name: logger
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   matcher:
     dependency: transitive
     description:
@@ -442,5 +435,5 @@ packages:
     source: hosted
     version: "5.3.1"
 sdks:
-  dart: ">=2.15.0 <3.0.0"
+  dart: ">=2.16.0 <3.0.0"
   flutter: ">=2.8.1"
