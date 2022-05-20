@@ -18,11 +18,11 @@ class PaginateResponse {
   //   'success': true / false
   // }
   PaginateResponse.fromJson(Map<String, dynamic> json) {
-    total = json['data']['total'];
+    total = json['data']['count'];
     error = json['error'] != null ? ErrorResponseObjectModel.fromJson(json['error']) : null;
-    if (json['data']['data'] != null) {
+    if (json['data']['result'] != null) {
       rows = [];
-      json['data']['data'].forEach((v) {
+      json['data']['result'].forEach((v) {
         rows.add(v);
       });
     }

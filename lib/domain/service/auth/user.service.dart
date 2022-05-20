@@ -1,8 +1,8 @@
-import 'package:flutter_jett_boilerplate/data/provider/api/user.api.dart';
 import 'package:flutter_jett_boilerplate/data/repositories/auth.repository.dart';
 import 'package:flutter_jett_boilerplate/data/repositories/user.repository.dart';
 import 'package:flutter_jett_boilerplate/domain/entities/auth/auth.entity.dart';
 import 'package:flutter_jett_boilerplate/domain/entities/auth/user.entity.dart';
+import 'package:get_storage/get_storage.dart';
 
 class UserService {
   static Future<UserEntity> login(String email, String password) async {
@@ -18,5 +18,9 @@ class UserService {
     UserEntity user = await UserRepository.getUserData();
     await UserRepository.saveUserData(user.toJson());
     return user;
+  }
+
+  static Future<void> logout() async {
+    await GetStorage().erase();
   }
 }

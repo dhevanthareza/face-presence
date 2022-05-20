@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -7,7 +5,6 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_jett_boilerplate/data/repositories/auth.repository.dart';
 import 'package:flutter_jett_boilerplate/domain/service/camera/camera_service.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:image/image.dart' as imglib;
@@ -24,22 +21,11 @@ class FaceDetectorService {
 
   static InputImage camareImageToInputImage(
       CameraImage cameraImage, int rotation) {
-    final WriteBuffer allBytes = WriteBuffer();
-    for (Plane plane in cameraImage.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
-
-    final Size imageSize =
-        Size(cameraImage.width.toDouble(), cameraImage.height.toDouble());
-
-    final InputImageRotation imageRotation =
-        CameraService.rotationIntToImageRotation(rotation);
-    final InputImageFormat inputImageFormat =
-        InputImageFormatMethods.fromRawValue(cameraImage.format.raw) ??
-            InputImageFormat.NV21;
-
-    final planeData = cameraImage.planes.map(
+    final inputImageData = InputImageData(
+      size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
+      imageRotation: CameraService.rotationIntToImageRotation(rotation),
+      inputImageFormat: InputImageFormat.BGRA8888,
+      planeData: cameraImage.planes.map(
       (Plane plane) {
         return InputImagePlaneMetadata(
           bytesPerRow: plane.bytesPerRow,
@@ -47,17 +33,11 @@ class FaceDetectorService {
           width: plane.width,
         );
       },
-    ).toList();
-
-    final inputImageData = InputImageData(
-      size: imageSize,
-      imageRotation: imageRotation,
-      inputImageFormat: inputImageFormat,
-      planeData: planeData,
+    ).toList(),
     );
 
     final inputImage =
-        InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
+        InputImage.fromBytes(bytes: cameraImage.planes[0].bytes, inputImageData: inputImageData);
     return inputImage;
   }
 

@@ -45,10 +45,6 @@ class RestClient {
     if (response == null) {
       throw AppException(message: err.message);
     }
-    if (err.response!.data['error'] == null) {
-      throw AppException(
-          message: response.data['error']['message'] ?? 'Undefined Error 500');
-    }
     _handleResponse(response);
   }
 

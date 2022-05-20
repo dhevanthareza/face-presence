@@ -6,4 +6,6 @@ class AppColor {
   static Color primaryColor25 = const Color(0x402A3FC5);
   static Color descriptionText = const Color(0xffB0B7BB);
   static Color darkColor = const Color(0xff3F4250);
+  static Color successColor = Colors.green;
+  static Color failedColor = Colors.red;
 }

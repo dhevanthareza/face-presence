@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       builder: (BuildContext context, dynamic child) {
         return LoadingProvider(
           child: child,
-          themeData: LoadingThemeData(tapDismiss: false),
+          themeData: LoadingThemeData(),
           loadingWidgetBuilder: (ctx, data) => Center(child: AppLoading()),
         );
       },

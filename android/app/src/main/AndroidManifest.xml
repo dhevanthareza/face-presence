@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.devlab.presenceapp">
    <application
-        android:label="flutter_jett_boilerplate"
+        android:label="Face Presence"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -37,8 +37,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <meta-data
+        <!-- <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="ocr,face" />
+            android:value="face" /> -->
     </application>
 </manifest>
