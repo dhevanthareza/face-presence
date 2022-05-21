@@ -2,6 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:load/load.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../domain/service/face/face_detector.service.dart';
 import '../../../../components/app_button.dart';
@@ -16,10 +17,11 @@ class PhotoPicker extends StatefulWidget {
 }
 
 class _PhotoPickerState extends State<PhotoPicker> {
-  CameraController? cameraController;
+  late CameraController cameraController;
   bool _detectingFaces = false;
   Face? faceDetected;
   CameraImage? cameraImage;
+  bool isCameraInitialized = false;
 
   @override
   void initState() {
@@ -29,7 +31,7 @@ class _PhotoPickerState extends State<PhotoPicker> {
 
   @override
   void dispose() {
-    cameraController!.dispose();
+    cameraController.dispose();
     super.dispose();
   }
 
@@ -42,23 +44,83 @@ class _PhotoPickerState extends State<PhotoPicker> {
 
   initializeCamera() async {
     showLoadingDialog();
-    List<CameraDescription> cameras = await availableCameras();
-    CameraDescription description = cameras.firstWhere(
-        (CameraDescription camera) =>
-            camera.lensDirection == CameraLensDirection.front);
-    CameraController cameraController = CameraController(
-        description, ResolutionPreset.high,
-        enableAudio: false);
-    await cameraController.initialize();
-    setState(() {
-      this.cameraController = cameraController;
-    });
-    await initiateFaceDetection(description);
-    hideLoadingDialog();
+    try {
+      List<CameraDescription> cameras = await availableCameras();
+      CameraDescription description = cameras.firstWhere(
+          (CameraDescription camera) =>
+              camera.lensDirection == CameraLensDirection.front);
+      cameraController = CameraController(description, ResolutionPreset.high,
+          enableAudio: false);
+      await cameraController.initialize().catchError((Object e) async {
+        if (e is CameraException) {
+          var whatsapp = "+6281226292132";
+          var text = """
+          Halo saya menemukan error dengan kode ${e.code} dan pesan ${e.description} dengan detail sebagi berikut
+          ${e.toString()}
+        """;
+          var whatsappURl_android =
+              "whatsapp://send?phone=" + whatsapp + "&text=${text}";
+          var whatappURL_ios = "https://wa.me/$whatsapp?text=${text}";
+          if (await canLaunchUrl(Uri.parse(whatsappURl_android))) {
+            await launchUrl(Uri.parse(whatsappURl_android));
+          } else {
+            if (await canLaunchUrl(Uri.parse(whatappURL_ios))) {
+              await launchUrl(Uri.parse(whatappURL_ios));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: new Text("whatsapp no installed")));
+            }
+          }
+        } else {
+          var whatsapp = "+6281226292132";
+          var text = """
+          Halo saya menemukan error detail sebagi berikut
+          ${e.toString()}
+        """;
+          var whatsappURl_android =
+              "whatsapp://send?phone=" + whatsapp + "&text=${text}";
+          var whatappURL_ios = "https://wa.me/$whatsapp?text=${text}";
+          if (await canLaunchUrl(Uri.parse(whatsappURl_android))) {
+            await launchUrl(Uri.parse(whatsappURl_android));
+          } else {
+            if (await canLaunchUrl(Uri.parse(whatappURL_ios))) {
+              await launchUrl(Uri.parse(whatappURL_ios));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: new Text("whatsapp no installed")));
+            }
+          }
+        }
+      });
+      setState(() {
+        isCameraInitialized = true;
+      });
+      await initiateFaceDetection(description);
+      hideLoadingDialog();
+    } catch (err) {
+      var whatsapp = "+6281226292132";
+        var text = """
+          [1] Halo saya menemukan error dengan detail sebagi berikut
+          ${err.toString()}
+        """;
+        var whatsappURl_android =
+            "whatsapp://send?phone=" + whatsapp + "&text=${text}";
+        var whatappURL_ios = "https://wa.me/$whatsapp?text=${text}";
+        if (await canLaunchUrl(Uri.parse(whatsappURl_android))) {
+          await launchUrl(Uri.parse(whatsappURl_android));
+        } else {
+          if (await canLaunchUrl(Uri.parse(whatappURL_ios))) {
+            await launchUrl(Uri.parse(whatappURL_ios));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: new Text("whatsapp no installed")));
+          }
+        }
+    }
   }
 
   initiateFaceDetection(CameraDescription cameraDescription) async {
-    cameraController!.startImageStream((CameraImage image) async {
+    cameraController.startImageStream((CameraImage image) async {
       if (_detectingFaces) return;
 
       _detectingFaces = true;
@@ -83,11 +145,11 @@ class _PhotoPickerState extends State<PhotoPicker> {
   handlePickPhotoClick() async {
     showLoadingDialog(tapDismiss: true);
     try {
-      if (cameraController!.value.isTakingPicture) {
+      if (cameraController.value.isTakingPicture) {
         return null;
       }
-      cameraController!.stopImageStream();
-      XFile file = await cameraController!.takePicture();
+      cameraController.stopImageStream();
+      XFile file = await cameraController.takePicture();
       RegisterPageController.to.setCameraFile(file);
       await RegisterPageController.to
           .setCroppedFile(cameraImage!, faceDetected!);
@@ -143,7 +205,7 @@ class _PhotoPickerState extends State<PhotoPicker> {
   Widget _cameraPreview() {
     final width = MediaQuery.of(context).size.width;
 
-    return cameraController == null
+    return !isCameraInitialized
         ? const Center(
             child: CircularProgressIndicator(
               color: Colors.white,
@@ -158,20 +220,20 @@ class _PhotoPickerState extends State<PhotoPicker> {
                   fit: BoxFit.fitHeight,
                   child: Container(
                     width: width,
-                    height: width * cameraController!.value.aspectRatio,
+                    height: width * cameraController.value.aspectRatio,
                     child: Stack(
                       fit: StackFit.expand,
                       children: <Widget>[
-                        CameraPreview(cameraController!),
+                        CameraPreview(cameraController),
                         faceDetected == null
                             ? SizedBox()
                             : CustomPaint(
                                 painter: FacePainter(
                                   face: faceDetected!,
                                   imageSize: Size(
-                                      cameraController!
+                                      cameraController
                                           .value.previewSize!.height,
-                                      cameraController!
+                                      cameraController
                                           .value.previewSize!.width),
                                 ),
                               ),

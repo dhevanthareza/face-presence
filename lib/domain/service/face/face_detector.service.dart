@@ -30,7 +30,7 @@ class FaceDetectorService {
     final inputImageData = InputImageData(
       size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
       imageRotation: CameraService.rotationIntToImageRotation(rotation),
-      inputImageFormat: InputImageFormat.bgra8888,
+      inputImageFormat: cameraImage.format.group == ImageFormatGroup.yuv420 ? InputImageFormat.yuv420 : InputImageFormat.bgra8888,
       planeData: cameraImage.planes.map(
         (Plane plane) {
           return InputImagePlaneMetadata(
