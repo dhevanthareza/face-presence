@@ -98,7 +98,7 @@ class RegisterPageController extends GetxController {
     } catch (err) {
       print(err);
       hideLoadingDialog();
-      Get.snackbar("Terjadi Error", "Silahkan coba lagi");
+      Get.snackbar("Terjadi Error", err.toString());
     }
   }
 
