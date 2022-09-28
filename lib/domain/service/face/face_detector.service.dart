@@ -14,7 +14,9 @@ class FaceDetectorService {
   static Future<List<Face>> detectFacesFromImage(
       CameraImage cameraImage, int rotation) async {
     final inputImage = camareImageToInputImage(cameraImage, rotation);
-    final faceDetector = FaceDetector(options: FaceDetectorOptions());
+    final faceDetector = FaceDetector(
+        options:
+            FaceDetectorOptions(performanceMode: FaceDetectorMode.accurate));
     final List<Face> faces = await faceDetector.processImage(inputImage);
     return faces;
   }
@@ -30,7 +32,9 @@ class FaceDetectorService {
     final inputImageData = InputImageData(
       size: Size(cameraImage.width.toDouble(), cameraImage.height.toDouble()),
       imageRotation: CameraService.rotationIntToImageRotation(rotation),
-      inputImageFormat: cameraImage.format.group == ImageFormatGroup.yuv420 ? InputImageFormat.yuv420 : InputImageFormat.bgra8888,
+      inputImageFormat: cameraImage.format.group == ImageFormatGroup.yuv420
+          ? InputImageFormat.yuv420
+          : InputImageFormat.bgra8888,
       planeData: cameraImage.planes.map(
         (Plane plane) {
           return InputImagePlaneMetadata(
@@ -42,8 +46,8 @@ class FaceDetectorService {
       ).toList(),
     );
 
-    final inputImage = InputImage.fromBytes(
-        bytes: bytes, inputImageData: inputImageData);
+    final inputImage =
+        InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
     return inputImage;
   }
 
@@ -98,7 +102,7 @@ class FaceDetectorService {
     }
     var interpreterOptions = InterpreterOptions()..addDelegate(delegate!);
     Interpreter interpreter = await Interpreter.fromAsset(
-        'mobilefacenet.tflite',
+        'facemobilenet.tflite',
         options: interpreterOptions);
     List input = _preProcess(cameraImage, face);
     input = input.reshape([1, 112, 112, 3]);

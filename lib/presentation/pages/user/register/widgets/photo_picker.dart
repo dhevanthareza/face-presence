@@ -1,5 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_jett_boilerplate/domain/service/report_service/report_service.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:load/load.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -47,49 +48,19 @@ class _PhotoPickerState extends State<PhotoPicker> {
     try {
       List<CameraDescription> cameras = await availableCameras();
       CameraDescription description = cameras.firstWhere(
-          (CameraDescription camera) =>
-              camera.lensDirection == CameraLensDirection.front);
-      cameraController = CameraController(description, ResolutionPreset.high,
-          enableAudio: false);
+        (CameraDescription camera) =>
+            camera.lensDirection == CameraLensDirection.front,
+      );
+      cameraController = CameraController(
+        description,
+        ResolutionPreset.high,
+        enableAudio: false,
+      );
       await cameraController.initialize().catchError((Object e) async {
         if (e is CameraException) {
-          var whatsapp = "+6281226292132";
-          var text = """
-          Halo saya menemukan error dengan kode ${e.code} dan pesan ${e.description} dengan detail sebagi berikut
-          ${e.toString()}
-        """;
-          var whatsappURl_android =
-              "whatsapp://send?phone=" + whatsapp + "&text=${text}";
-          var whatappURL_ios = "https://wa.me/$whatsapp?text=${text}";
-          if (await canLaunchUrl(Uri.parse(whatsappURl_android))) {
-            await launchUrl(Uri.parse(whatsappURl_android));
-          } else {
-            if (await canLaunchUrl(Uri.parse(whatappURL_ios))) {
-              await launchUrl(Uri.parse(whatappURL_ios));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: new Text("whatsapp no installed")));
-            }
-          }
+          return ReportService.reportCameraException(e);
         } else {
-          var whatsapp = "+6281226292132";
-          var text = """
-          Halo saya menemukan error detail sebagi berikut
-          ${e.toString()}
-        """;
-          var whatsappURl_android =
-              "whatsapp://send?phone=" + whatsapp + "&text=${text}";
-          var whatappURL_ios = "https://wa.me/$whatsapp?text=${text}";
-          if (await canLaunchUrl(Uri.parse(whatsappURl_android))) {
-            await launchUrl(Uri.parse(whatsappURl_android));
-          } else {
-            if (await canLaunchUrl(Uri.parse(whatappURL_ios))) {
-              await launchUrl(Uri.parse(whatappURL_ios));
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: new Text("whatsapp no installed")));
-            }
-          }
+          return ReportService.reportException(e.toString());
         }
       });
       setState(() {
@@ -98,24 +69,7 @@ class _PhotoPickerState extends State<PhotoPicker> {
       await initiateFaceDetection(description);
       hideLoadingDialog();
     } catch (err) {
-      var whatsapp = "+6281226292132";
-        var text = """
-          [1] Halo saya menemukan error dengan detail sebagi berikut
-          ${err.toString()}
-        """;
-        var whatsappURl_android =
-            "whatsapp://send?phone=" + whatsapp + "&text=${text}";
-        var whatappURL_ios = "https://wa.me/$whatsapp?text=${text}";
-        if (await canLaunchUrl(Uri.parse(whatsappURl_android))) {
-          await launchUrl(Uri.parse(whatsappURl_android));
-        } else {
-          if (await canLaunchUrl(Uri.parse(whatappURL_ios))) {
-            await launchUrl(Uri.parse(whatappURL_ios));
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: new Text("whatsapp no installed")));
-          }
-        }
+      ReportService.reportException(err.toString());
     }
   }
 
@@ -125,7 +79,9 @@ class _PhotoPickerState extends State<PhotoPicker> {
 
       _detectingFaces = true;
       List<Face> faces = await FaceDetectorService.detectFacesFromImage(
-          image, cameraDescription.sensorOrientation);
+        image,
+        cameraDescription.sensorOrientation,
+      );
       if (faces.isNotEmpty) {
         setState(() {
           faceDetected = faces[0];
