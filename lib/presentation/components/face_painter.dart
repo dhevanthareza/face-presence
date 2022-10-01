@@ -8,7 +8,10 @@ class FacePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint;
-    if (face.headEulerAngleY! > 10 || face.headEulerAngleY! < -10) {
+    if (face.headEulerAngleY! > 10 ||
+        face.headEulerAngleY! < -10 ||
+        face.headEulerAngleX! > 10 ||
+        face.headEulerAngleX! < -10) {
       paint = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3.0

@@ -77,6 +77,7 @@ class _PresencePhotoPickerPageState extends State<PresencePhotoPickerPage> {
           faceDetected = faces[0];
           cameraImage = image;
         });
+        // handlePickPhotoClick();
         _detectingFaces = false;
       } else {
         setState(() {
@@ -93,7 +94,7 @@ class _PresencePhotoPickerPageState extends State<PresencePhotoPickerPage> {
       if (cameraController.value.isTakingPicture) {
         return null;
       }
-      cameraController.stopImageStream();
+      await cameraController.stopImageStream();
       XFile file = await cameraController.takePicture();
       cameraFile = File(file.path);
 
@@ -119,6 +120,8 @@ class _PresencePhotoPickerPageState extends State<PresencePhotoPickerPage> {
         ),
       );
     } catch (err) {
+      print("=======+ERROR+=======");
+      print(err);
       hideLoadingDialog();
     }
   }

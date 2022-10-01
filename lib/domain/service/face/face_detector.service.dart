@@ -102,7 +102,7 @@ class FaceDetectorService {
     }
     var interpreterOptions = InterpreterOptions()..addDelegate(delegate!);
     Interpreter interpreter = await Interpreter.fromAsset(
-        'facemobilenet.tflite',
+        'mobilefacenet_pims.tflite',
         options: interpreterOptions);
     List input = _preProcess(cameraImage, face);
     input = input.reshape([1, 112, 112, 3]);
