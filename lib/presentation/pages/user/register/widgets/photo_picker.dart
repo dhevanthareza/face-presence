@@ -1,11 +1,12 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_jett_boilerplate/domain/service/mlkit/mlkit.service.dart';
 import 'package:flutter_jett_boilerplate/domain/service/report_service/report_service.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:load/load.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../../domain/service/face/face_detector.service.dart';
+import '../../../../../domain/service/face/face.service.dart';
 import '../../../../components/app_button.dart';
 import '../../../../components/face_painter.dart';
 import '../register_page.controller.dart';
@@ -78,7 +79,7 @@ class _PhotoPickerState extends State<PhotoPicker> {
       if (_detectingFaces) return;
 
       _detectingFaces = true;
-      List<Face> faces = await FaceDetectorService.detectFacesFromImage(
+      List<Face> faces = await MlKitService.detectFacesFromImage(
         image,
         cameraDescription.sensorOrientation,
       );

@@ -3,12 +3,14 @@ import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_jett_boilerplate/domain/service/image/image.service.dart';
+import 'package:flutter_jett_boilerplate/domain/service/mlkit/mlkit.service.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:load/load.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:path_provider/path_provider.dart';
-import '../../../../domain/service/face/face_detector.service.dart';
+import '../../../../domain/service/face/face.service.dart';
 import '../../../components/app_button.dart';
 import '../../../components/face_painter.dart';
 
@@ -70,7 +72,7 @@ class _PresencePhotoPickerPageState extends State<PresencePhotoPickerPage> {
       if (_detectingFaces) return;
 
       _detectingFaces = true;
-      List<Face> faces = await FaceDetectorService.detectFacesFromImage(
+      List<Face> faces = await MlKitService.detectFacesFromImage(
           image, cameraDescription.sensorOrientation);
       if (faces.isNotEmpty) {
         setState(() {
@@ -100,7 +102,7 @@ class _PresencePhotoPickerPageState extends State<PresencePhotoPickerPage> {
 
       // Building Cropped File
       imglib.Image cropImage =
-          FaceDetectorService.cropFace(cameraImage!, faceDetected!);
+          ImageService.cropFace(cameraImage!, faceDetected!);
       Directory directory = await getTemporaryDirectory();
       File cropFile = await File('${directory.path}/${getRandomString(10)}.png')
           .writeAsBytes(imglib.encodePng(cropImage));
@@ -108,7 +110,7 @@ class _PresencePhotoPickerPageState extends State<PresencePhotoPickerPage> {
 
       // Building Feaature
       List<dynamic> _photoFeature =
-          await FaceDetectorService.createFeature(cameraImage!, faceDetected!);
+          await FaceService.createFeature(cameraImage!, faceDetected!);
       photoFeature = _photoFeature;
 
       hideLoadingDialog();

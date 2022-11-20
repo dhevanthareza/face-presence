@@ -6,7 +6,8 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:flutter_jett_boilerplate/domain/entities/core/app_exception.dart';
 import 'package:flutter_jett_boilerplate/domain/service/auth/user.service.dart';
-import 'package:flutter_jett_boilerplate/domain/service/face/face_detector.service.dart';
+import 'package:flutter_jett_boilerplate/domain/service/face/face.service.dart';
+import 'package:flutter_jett_boilerplate/domain/service/image/image.service.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as imglib;
@@ -49,7 +50,7 @@ class RegisterPageController extends GetxController {
   }
 
   Future<void> setCroppedFile(CameraImage image, Face faceDetected) async {
-    imglib.Image cropImage = FaceDetectorService.cropFace(image, faceDetected);
+    imglib.Image cropImage = ImageService.cropFace(image, faceDetected);
     Directory directory = await getTemporaryDirectory();
     bool isTempImageExist =
         await File('${directory.path}/cropfile.png').exists();
@@ -60,7 +61,7 @@ class RegisterPageController extends GetxController {
         .writeAsBytes(imglib.encodePng(cropImage));
     croppedFile = cropFile;
     List<dynamic> _photoFeature =
-        await FaceDetectorService.createFeature(image, faceDetected);
+        await FaceService.createFeature(image, faceDetected);
     photoFeature = _photoFeature;
     update();
   }
@@ -94,7 +95,8 @@ class RegisterPageController extends GetxController {
       goToHome();
     } on AppException catch (err) {
       hideLoadingDialog();
-      Get.snackbar("Terjadi Error", err.message != null ? err.message! : "Unknown Error");
+      Get.snackbar("Terjadi Error",
+          err.message != null ? err.message! : "Unknown Error");
     } catch (err) {
       print(err);
       hideLoadingDialog();
