@@ -111,7 +111,9 @@ class HomePageController extends GetxController {
         'photo': await dio.MultipartFile.fromFile(result.cameraFile.path),
         'cropped_photo':
             await dio.MultipartFile.fromFile(result.croppedFile.path),
-        'faceFeature': result.photoFeature
+        'faceFeature': result.photoFeature,
+        'extractionTimeMs': result.extarctionTimeMs,
+        'modelRunTimeMs': result.modelRunTimeMs
       };
       await PresenceRepository.presence(payload);
       submitLoading = false;
