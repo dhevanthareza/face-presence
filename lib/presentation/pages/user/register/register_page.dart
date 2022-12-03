@@ -5,7 +5,6 @@ import 'package:flutter_jett_boilerplate/data/const/app_text.dart';
 import 'package:flutter_jett_boilerplate/presentation/components/app_button.dart';
 import 'package:flutter_jett_boilerplate/presentation/components/app_text_field.dart';
 import 'package:flutter_jett_boilerplate/presentation/pages/user/register/register_page.controller.dart';
-import 'package:flutter_jett_boilerplate/presentation/pages/user/register/widgets/photo_picker.dart';
 import 'package:get/get.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -115,10 +114,10 @@ class _RegisterPageState extends State<RegisterPage> {
         AppTextField(
           onTap: () {
             FocusManager.instance.primaryFocus?.unfocus();
-            Get.to(PhotoPicker());
+            state.pickPhoto();
           },
-          title: state.cameraFile != null ? "Ambil Ulang Foto" : "Ambil Foto",
-          hintText: state.cameraFile != null ? "Ambil Ulang Foto" : "Ambil Foto",
+          title: state.photo != null ? "Ambil Ulang Foto" : "Ambil Foto",
+          hintText: state.photo != null ? "Ambil Ulang Foto" : "Ambil Foto",
           controller: state.photoTextController,
           prefixIcon: const Icon(Icons.camera_alt_outlined),
         ),

@@ -5,11 +5,13 @@ import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jett_boilerplate/data/const/app_text.dart';
+import 'package:flutter_jett_boilerplate/domain/entities/face/photo_pick_result.dart';
+import 'package:flutter_jett_boilerplate/domain/entities/face/photoe_extraction_result.dart';
 import 'package:flutter_jett_boilerplate/domain/service/face/face.service.dart';
 import 'package:flutter_jett_boilerplate/domain/service/image/image.service.dart';
 import 'package:flutter_jett_boilerplate/domain/service/mlkit/mlkit.service.dart';
+import 'package:flutter_jett_boilerplate/presentation/components/face_confirmation.dart';
 import 'package:flutter_jett_boilerplate/presentation/components/face_painter.dart';
-import 'package:flutter_jett_boilerplate/presentation/pages/home/widget/photo_picker.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:load/load.dart';
 import 'package:get/get.dart';
@@ -17,7 +19,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:image/image.dart' as imglib;
 
 class FaceExtractor extends StatefulWidget {
-  const FaceExtractor({Key? key}) : super(key: key);
+  final bool isNeedConfirmation;
+  const FaceExtractor({Key? key, this.isNeedConfirmation = false})
+      : super(key: key);
 
   @override
   State<FaceExtractor> createState() => _FaceExtractorState();
@@ -26,7 +30,10 @@ class FaceExtractor extends StatefulWidget {
 class _FaceExtractorState extends State<FaceExtractor>
     with SingleTickerProviderStateMixin {
   String HOLD_POSITION_MESSAGE = "Pertahankan posisi wajah";
+
   late CameraController cameraController;
+  late CameraDescription cameraDescription;
+
   bool _detectingFaces = false;
   Face? faceDetected;
   CameraImage? cameraImage;
@@ -36,13 +43,14 @@ class _FaceExtractorState extends State<FaceExtractor>
   bool isCameraInitialized = false;
   bool isFaceExtractionLoading = false;
 
-  Duration facePickDelay = Duration(seconds: 3);
+  Duration facePickDelay = const Duration(seconds: 2);
   bool isCanPickFace = false;
+
+  Timer? timer = null;
 
   @override
   void initState() {
     super.initState();
-    startFacePickDelayTimer();
     initializeCamera();
   }
 
@@ -60,7 +68,8 @@ class _FaceExtractorState extends State<FaceExtractor>
   }
 
   startFacePickDelayTimer() {
-    Timer timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      this.timer = timer;
       final seconds = facePickDelay.inSeconds - 1;
       if (seconds < 0) {
         timer.cancel();
@@ -84,16 +93,19 @@ class _FaceExtractorState extends State<FaceExtractor>
       isCameraInitialized = true;
     });
     hideLoadingDialog();
-    initiateFaceDetection(description);
+    cameraDescription = description;
+    initiateFaceDetection();
   }
 
-  initiateFaceDetection(CameraDescription cameraDescription) async {
+  initiateFaceDetection() async {
     cameraController.startImageStream((CameraImage image) async {
       if (_detectingFaces) return;
 
       _detectingFaces = true;
       List<Face> faces = await MlKitService.detectFacesFromImage(
-          image, cameraDescription.sensorOrientation);
+        image,
+        cameraDescription.sensorOrientation,
+      );
       if (faces.isEmpty) {
         _detectingFaces = false;
         return;
@@ -102,8 +114,16 @@ class _FaceExtractorState extends State<FaceExtractor>
         faceDetected = faces[0];
       });
       if (_faceMessage() != HOLD_POSITION_MESSAGE) {
+        if (timer != null) {
+          timer!.cancel();
+          isCanPickFace = false;
+          timer = null;
+        }
         _detectingFaces = false;
         return;
+      }
+      if (timer == null) {
+        startFacePickDelayTimer();
       }
       cameraImage = image;
       if (!isCanPickFace) {
@@ -118,22 +138,22 @@ class _FaceExtractorState extends State<FaceExtractor>
     if (faceDetected == null) {
       return null;
     }
-    if (faceDetected!.headEulerAngleY! > 10) {
+    if (faceDetected!.headEulerAngleY! > 7) {
       return "Wajah terlalu menghadap kiri luruskan wajah";
     }
-    if (faceDetected!.headEulerAngleY! < -10) {
+    if (faceDetected!.headEulerAngleY! < -7) {
       return "Wajah terlalu menghadap kanan luruskan wajah";
     }
-    if (faceDetected!.headEulerAngleX! > 10) {
+    if (faceDetected!.headEulerAngleX! > 7) {
       return "Wajah terlalu menghadap atas luruskan wajah";
     }
-    if (faceDetected!.headEulerAngleX! < -10) {
+    if (faceDetected!.headEulerAngleX! < -7) {
       return "Wajah terlalu menghadap bawah luruskan wajah";
     }
-    if (faceDetected!.headEulerAngleZ! > 10) {
+    if (faceDetected!.headEulerAngleZ! > 7) {
       return "Wajah terlalu miring ke kanan luruskan wajah";
     }
-    if (faceDetected!.headEulerAngleZ! < -5) {
+    if (faceDetected!.headEulerAngleZ! < -7) {
       return "Wajah terlalu miring ke kiri luruskan wajah";
     }
     return HOLD_POSITION_MESSAGE;
@@ -151,25 +171,52 @@ class _FaceExtractorState extends State<FaceExtractor>
       XFile file = await cameraController.takePicture();
       cameraFile = File(file.path);
 
+      // Confirming Image
+      bool? isPhotoConfirmed = !widget.isNeedConfirmation
+          ? true
+          : await Get.to(
+              () => FaceConfirmation(
+                cameraFile: cameraFile!,
+              ),
+            );
+      print("isPhotoConfirmed ${isPhotoConfirmed}");
+      if (isPhotoConfirmed == null || isPhotoConfirmed == false) {
+        timer!.cancel();
+        timer = null;
+        isCanPickFace = false;
+        _detectingFaces = false;
+        setState(() {
+          isFaceExtractionLoading = false;
+        });
+        initiateFaceDetection();
+        return;
+      }
+
       // Building Cropped File
       imglib.Image cropImage =
           ImageService.cropFace(cameraImage!, faceDetected!);
+      cropImage = imglib.copyResizeCropSquare(cropImage, 112);
       Directory directory = await getTemporaryDirectory();
       File cropFile = await File('${directory.path}/${getRandomString(10)}.png')
           .writeAsBytes(imglib.encodePng(cropImage));
       croppedFile = cropFile;
 
-      // Building Feaature
-      List<dynamic> _photoFeature =
+      Stopwatch stopwatch = Stopwatch()..start();
+      PhotoExtractionResult extractionResult =
           await FaceService.createFeature(cameraImage!, faceDetected!);
-      photoFeature = _photoFeature;
-
-      PhotoPickResult extractionResult = PhotoPickResult(
+      photoFeature = extractionResult.photoFeature;
+      Duration creatingFeatureDuration = stopwatch.elapsed;
+      stopwatch.stop();
+      print(
+          "FACE FEATURE CREATED ON ${creatingFeatureDuration.inMilliseconds}ms");
+      PhotoPickResult photoPickResult = PhotoPickResult(
         cameraFile: cameraFile!,
         croppedFile: croppedFile!,
         photoFeature: photoFeature,
+        extarctionTimeMs: creatingFeatureDuration.inMilliseconds,
+        modelRunTimeMs: extractionResult.modelRunTimeMs,
       );
-      Get.back(result: extractionResult);
+      Get.back(result: photoPickResult);
     } catch (err) {
       print(err);
       setState(() {

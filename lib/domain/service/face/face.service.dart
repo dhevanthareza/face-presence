@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_jett_boilerplate/domain/entities/face/photoe_extraction_result.dart';
 import 'package:flutter_jett_boilerplate/domain/service/camera/camera_service.dart';
 import 'package:flutter_jett_boilerplate/domain/service/image/image.service.dart';
 import 'package:flutter_jett_boilerplate/domain/service/mlkit/mlkit.service.dart';
@@ -13,7 +14,8 @@ import 'package:image/image.dart' as imglib;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 class FaceService {
-  static Future<List> createFeature(CameraImage cameraImage, Face face) async {
+  static Future<PhotoExtractionResult> createFeature(
+      CameraImage cameraImage, Face face) async {
     Delegate? delegate;
     if (Platform.isAndroid) {
       delegate = GpuDelegateV2(
@@ -32,19 +34,26 @@ class FaceService {
     }
     var interpreterOptions = InterpreterOptions()..addDelegate(delegate!);
     Interpreter interpreter = await Interpreter.fromAsset(
-        'mobilefacenet.tflite',
+        'mobile_face_net_sirius.tflite',
         options: interpreterOptions);
     List input = _preProcess(cameraImage, face);
     input = input.reshape([1, 112, 112, 3]);
     print("INPUT = ${input}");
     List output = List.generate(1, (index) => List.filled(192, 0));
+    Stopwatch stopwatch = Stopwatch()..start();
     interpreter.run(input, output);
+    Duration creatingFeatureDuration = stopwatch.elapsed;
+    stopwatch.stop();
+    print("MODEL RUN ON ${creatingFeatureDuration.inMilliseconds}ms");
     print("===========output length=========");
     print(output.length);
     print(output[0].length);
     output = output.reshape([192]);
     List features = List.from(output);
-    return features;
+    return PhotoExtractionResult(
+      photoFeature: features,
+      modelRunTimeMs: creatingFeatureDuration.inMilliseconds,
+    );
   }
 
   static List _preProcess(CameraImage image, Face faceDetected) {

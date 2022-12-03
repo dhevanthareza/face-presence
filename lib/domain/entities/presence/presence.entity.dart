@@ -37,8 +37,7 @@ class PresenceEntity {
     croppedPhoto = json['cropped_photo'] != null
         ? CroppedPhoto.fromJson(json['cropped_photo'])
         : null;
-    photo =
-        json['photo'] != null ? CroppedPhoto.fromJson(json['photo']) : null;
+    photo = json['photo'] != null ? CroppedPhoto.fromJson(json['photo']) : null;
     distance = json['distance'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];

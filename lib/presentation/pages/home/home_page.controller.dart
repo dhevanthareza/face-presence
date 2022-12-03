@@ -6,9 +6,10 @@ import 'package:flutter_jett_boilerplate/data/repositories/presence.repository.d
 import 'package:flutter_jett_boilerplate/data/repositories/user.repository.dart';
 import 'package:flutter_jett_boilerplate/domain/entities/auth/user.entity.dart';
 import 'package:flutter_jett_boilerplate/domain/entities/core/app_exception.dart';
+import 'package:flutter_jett_boilerplate/domain/entities/face/photo_pick_result.dart';
 import 'package:flutter_jett_boilerplate/domain/entities/rest_response/paginate_response.dart';
 import 'package:flutter_jett_boilerplate/domain/service/auth/user.service.dart';
-import 'package:flutter_jett_boilerplate/presentation/pages/home/widget/photo_picker.dart';
+import 'package:flutter_jett_boilerplate/presentation/components/face_extractor.dart';
 import 'package:flutter_jett_boilerplate/presentation/pages/home/widget/result_page.dart';
 import 'package:flutter_jett_boilerplate/utils/date_utils.dart';
 import 'package:get/get.dart';
@@ -45,7 +46,7 @@ class HomePageController extends GetxController {
 
   void fetchUserData() async {
     UserEntity? user = await UserRepository.getSavedUserData();
-    if(user != null) {
+    if (user != null) {
       username = user.fullname ?? "";
       update();
     }
@@ -65,8 +66,7 @@ class HomePageController extends GetxController {
   }
 
   void checkIn() async {
-    PhotoPickResult? result =
-        await Get.to(() => const PresencePhotoPickerPage());
+    PhotoPickResult? result = await Get.to(() => const FaceExtractor());
     if (result == null) {
       Get.snackbar("Cancel", "Presensi dibatalkan");
       return;
@@ -80,7 +80,9 @@ class HomePageController extends GetxController {
         'photo': await dio.MultipartFile.fromFile(result.cameraFile.path),
         'cropped_photo':
             await dio.MultipartFile.fromFile(result.croppedFile.path),
-        'faceFeature': result.photoFeature
+        'faceFeature': result.photoFeature,
+        'extractionTimeMs': result.extarctionTimeMs,
+        'modelRunTimeMs': result.modelRunTimeMs
       };
       await PresenceRepository.presence(payload);
       submitLoading = false;
@@ -96,7 +98,7 @@ class HomePageController extends GetxController {
   }
 
   void checkOut() async {
-    PhotoPickResult? result = await Get.to(const PresencePhotoPickerPage());
+    PhotoPickResult? result = await Get.to(() => const FaceExtractor());
     if (result == null) {
       Get.snackbar("Cancel", "Presensi dibatalkan");
       return;
@@ -130,10 +132,12 @@ class HomePageController extends GetxController {
       PresenceEntity currentPresence = await PresenceRepository.today();
       checkInTime = AppDateUtils.formatFromString(
           currentPresence.checkInDatetime,
-          format: 'HH:mm', addHours: 7);
+          format: 'HH:mm',
+          addHours: 7);
       checkOutTime = AppDateUtils.formatFromString(
           currentPresence.checkOutDatetime,
-          format: 'HH:mm', addHours: 7);
+          format: 'HH:mm',
+          addHours: 7);
       currentPresenceLoading = false;
       update();
     } on AppException catch (err) {

@@ -14,20 +14,17 @@ class PresenceApi {
     );
     return DefaultResponseEntity.fromJson(response);
   }
+
   static Future<DefaultResponseEntity> today() async {
     dynamic response = await RestClient.get(
       "/presence/today",
     );
     return DefaultResponseEntity.fromJson(response);
   }
+
   static Future<PaginateResponse> history(int page, int limit) async {
-    dynamic response = await RestClient.get(
-      "/presence/datatable",
-      queryParameter: {
-        "limit": limit,
-        "page": page
-      }
-    );
+    dynamic response = await RestClient.get("/presence/mine-datatable",
+        queryParameter: {"limit": limit, "page": page});
     return PaginateResponse.fromJson(response);
   }
 }

@@ -1,18 +1,12 @@
 import 'dart:io';
-import 'dart:math';
-
-import 'package:camera/camera.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
 import 'package:flutter_jett_boilerplate/domain/entities/core/app_exception.dart';
+import 'package:flutter_jett_boilerplate/domain/entities/face/photo_pick_result.dart';
 import 'package:flutter_jett_boilerplate/domain/service/auth/user.service.dart';
-import 'package:flutter_jett_boilerplate/domain/service/face/face.service.dart';
-import 'package:flutter_jett_boilerplate/domain/service/image/image.service.dart';
+import 'package:flutter_jett_boilerplate/presentation/components/face_extractor.dart';
 import 'package:get/get.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:image/image.dart' as imglib;
 import 'package:load/load.dart';
-import 'package:path_provider/path_provider.dart';
 
 class RegisterPageController extends GetxController {
   static RegisterPageController get to => Get.find();
@@ -22,16 +16,16 @@ class RegisterPageController extends GetxController {
   //   FaceDetectionResult()
   // ];
   int currentStep = 0;
-  Face? faceDetected;
-  CameraImage? cameraImage;
-  File? cameraFile;
   File? croppedFile;
+  File? photo;
   List<dynamic> photoFeature = [];
   TextEditingController fullnameTextController = TextEditingController();
   TextEditingController emailTextController = TextEditingController();
   TextEditingController passwordTextController = TextEditingController();
   TextEditingController photoTextController = TextEditingController();
   bool isAgree = false;
+  int extractionTimeMs = 0;
+  int modelRunTimeMs = 0;
 
   void nextStep() {
     currentStep += 1;
@@ -43,40 +37,26 @@ class RegisterPageController extends GetxController {
     update();
   }
 
-  void setFaceAndImage(Face face, CameraImage image) {
-    faceDetected = face;
-    cameraImage = image;
-    update();
-  }
-
-  Future<void> setCroppedFile(CameraImage image, Face faceDetected) async {
-    imglib.Image cropImage = ImageService.cropFace(image, faceDetected);
-    Directory directory = await getTemporaryDirectory();
-    bool isTempImageExist =
-        await File('${directory.path}/cropfile.png').exists();
-    if (isTempImageExist) {
-      await File('${directory.path}/cropfile.png').delete();
-    }
-    File cropFile = await File('${directory.path}/${getRandomString(10)}.png')
-        .writeAsBytes(imglib.encodePng(cropImage));
-    croppedFile = cropFile;
-    List<dynamic> _photoFeature =
-        await FaceService.createFeature(image, faceDetected);
-    photoFeature = _photoFeature;
-    update();
-  }
-
-  void setCameraFile(XFile file) {
-    cameraFile = File(file.path);
-    update();
-  }
-
   void goToLogin() {
     Get.offAndToNamed("/user/login");
   }
 
   void goToHome() {
     Get.offAndToNamed("/home");
+  }
+
+  void pickPhoto() async {
+    PhotoPickResult photoPickResult = await Get.to(
+      const FaceExtractor(
+        isNeedConfirmation: true,
+      ),
+    );
+    croppedFile = photoPickResult.croppedFile;
+    photoFeature = photoPickResult.photoFeature;
+    photo = photoPickResult.cameraFile;
+    extractionTimeMs = photoPickResult.extarctionTimeMs;
+    modelRunTimeMs = photoPickResult.modelRunTimeMs;
+    update();
   }
 
   void register() async {
@@ -86,9 +66,11 @@ class RegisterPageController extends GetxController {
         'fullname': fullnameTextController.text,
         'email': emailTextController.text,
         'password': passwordTextController.text,
-        'photo': await dio.MultipartFile.fromFile(cameraFile!.path),
+        'photo': await dio.MultipartFile.fromFile(photo!.path),
         'cropped_photo': await dio.MultipartFile.fromFile(croppedFile!.path),
-        'photo_feature': photoFeature
+        'photo_feature': photoFeature,
+        'extractionTimeMs': extractionTimeMs,
+        'modelRunTimeMs': modelRunTimeMs
       };
       await UserService.register(payload);
       hideLoadingDialog();
@@ -102,13 +84,5 @@ class RegisterPageController extends GetxController {
       hideLoadingDialog();
       Get.snackbar("Terjadi Error", err.toString());
     }
-  }
-
-  String getRandomString(int length) {
-    const _chars =
-        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-    Random _rnd = Random();
-    return String.fromCharCodes(Iterable.generate(
-        length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
   }
 }
