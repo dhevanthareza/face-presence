@@ -43,7 +43,7 @@ class _FaceExtractorState extends State<FaceExtractor>
   bool isCameraInitialized = false;
   bool isFaceExtractionLoading = false;
 
-  Duration facePickDelay = const Duration(seconds: 2);
+  Duration facePickDelay = const Duration(seconds: 3);
   bool isCanPickFace = false;
 
   Timer? timer = null;
