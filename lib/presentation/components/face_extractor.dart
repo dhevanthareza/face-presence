@@ -172,6 +172,7 @@ class _FaceExtractorState extends State<FaceExtractor>
       cameraFile = File(file.path);
 
       // Confirming Image
+      CameraImage _cameraImage = cameraImage!;
       bool? isPhotoConfirmed = !widget.isNeedConfirmation
           ? true
           : await Get.to(
@@ -194,7 +195,7 @@ class _FaceExtractorState extends State<FaceExtractor>
 
       // Building Cropped File
       imglib.Image cropImage =
-          ImageService.cropFace(cameraImage!, faceDetected!);
+          ImageService.cropFace(_cameraImage, faceDetected!);
       cropImage = imglib.copyResizeCropSquare(cropImage, 112);
       Directory directory = await getTemporaryDirectory();
       File cropFile = await File('${directory.path}/${getRandomString(10)}.png')
@@ -203,7 +204,7 @@ class _FaceExtractorState extends State<FaceExtractor>
 
       Stopwatch stopwatch = Stopwatch()..start();
       PhotoExtractionResult extractionResult =
-          await FaceService.createFeature(cameraImage!, faceDetected!);
+          await FaceService.createFeature(_cameraImage, faceDetected!);
       photoFeature = extractionResult.photoFeature;
       Duration creatingFeatureDuration = stopwatch.elapsed;
       stopwatch.stop();
