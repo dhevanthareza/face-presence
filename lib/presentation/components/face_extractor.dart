@@ -167,12 +167,12 @@ class _FaceExtractorState extends State<FaceExtractor>
       if (cameraController.value.isTakingPicture) {
         return null;
       }
+      // Confirming Image
+      CameraImage _cameraImage = cameraImage!;
       await cameraController.stopImageStream();
       XFile file = await cameraController.takePicture();
       cameraFile = File(file.path);
 
-      // Confirming Image
-      CameraImage _cameraImage = cameraImage!;
       bool? isPhotoConfirmed = !widget.isNeedConfirmation
           ? true
           : await Get.to(

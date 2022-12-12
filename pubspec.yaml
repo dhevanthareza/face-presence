@@ -71,8 +71,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-    - assets/mobilefacenet.tflite
-    - assets/mobilefacenet_presensiku.tflite
+    - assets/mobilefacenet_rjvysakh.tflite
     - assets/mobile_face_net_sirius.tflite
     # - images/a_dot_ham.jpeg
 

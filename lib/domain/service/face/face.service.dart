@@ -34,7 +34,7 @@ class FaceService {
     }
     var interpreterOptions = InterpreterOptions()..addDelegate(delegate!);
     Interpreter interpreter = await Interpreter.fromAsset(
-        'mobile_face_net_sirius.tflite',
+        'mobilefacenet_rjvysakh.tflite',
         options: interpreterOptions);
     List input = _preProcess(cameraImage, face);
     input = input.reshape([1, 112, 112, 3]);

@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
                   _formContent(state),
                   const SizedBox(height: 60),
                   AppButton(
-                    title: "Loign",
+                    title: "Login",
                     onPressed: () {
                       state.login();
                     },

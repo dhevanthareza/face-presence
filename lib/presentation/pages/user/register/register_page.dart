@@ -116,8 +116,12 @@ class _RegisterPageState extends State<RegisterPage> {
             FocusManager.instance.primaryFocus?.unfocus();
             state.pickPhoto();
           },
-          title: state.photo != null ? "Ambil Ulang Foto" : "Ambil Foto",
-          hintText: state.photo != null ? "Ambil Ulang Foto" : "Ambil Foto",
+          title: state.photo != null
+              ? "Tekan untuk ambil ulang foto"
+              : "Ambil Foto",
+          hintText: state.photo != null
+              ? "Tekan untuk ambil U=ulang foto"
+              : "Ambil Foto",
           controller: state.photoTextController,
           prefixIcon: const Icon(Icons.camera_alt_outlined),
         ),
