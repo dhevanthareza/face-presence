@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
@@ -47,11 +49,19 @@ RRect _scaleRect(
     required Size widgetSize,
     required double scaleX,
     required double scaleY}) {
-  return RRect.fromLTRBR(
-    widgetSize.width - rect.left.toDouble() * scaleX,
-    rect.top.toDouble() * scaleY,
-    widgetSize.width - rect.right.toDouble() * scaleX,
-    rect.bottom.toDouble() * scaleY,
-    Radius.circular(10),
-  );
+  return Platform.isIOS
+      ? RRect.fromLTRBR(
+          rect.left.toDouble() * scaleX,
+          rect.top.toDouble() * scaleY,
+          rect.right.toDouble() * scaleX,
+          rect.bottom.toDouble() * scaleY,
+          Radius.circular(10),
+        )
+      : RRect.fromLTRBR(
+          widgetSize.width - rect.left.toDouble() * scaleX,
+          rect.top.toDouble() * scaleY,
+          widgetSize.width - rect.right.toDouble() * scaleX,
+          rect.bottom.toDouble() * scaleY,
+          Radius.circular(10),
+        );
 }

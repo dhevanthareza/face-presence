@@ -27,12 +27,14 @@ class FaceService {
         inferencePriority3: TfLiteGpuInferencePriority.auto,
       ));
     } else if (Platform.isIOS) {
-      delegate = GpuDelegate(
-        options: GpuDelegateOptions(
-            allowPrecisionLoss: true, waitType: TFLGpuDelegateWaitType.active),
-      );
+      // delegate = GpuDelegate(
+      //   options: GpuDelegateOptions(
+      //       allowPrecisionLoss: true, waitType: TFLGpuDelegateWaitType.active),
+      // );
     }
-    var interpreterOptions = InterpreterOptions()..addDelegate(delegate!);
+    var interpreterOptions = Platform.isAndroid
+        ? (InterpreterOptions()..addDelegate(delegate!))
+        : InterpreterOptions();
     Interpreter interpreter = await Interpreter.fromAsset(
         'mobilefacenet_rjvysakh.tflite',
         options: interpreterOptions);
@@ -59,6 +61,9 @@ class FaceService {
   static List _preProcess(CameraImage image, Face faceDetected) {
     imglib.Image croppedImage = ImageService.cropFace(image, faceDetected);
     imglib.Image img = imglib.copyResizeCropSquare(croppedImage, 112);
+    if (Platform.isIOS) {
+      img = imglib.flipHorizontal(img);
+    }
 
     Float32List imageAsList = ImageService.imageToByteListFloat32(img);
     return imageAsList;

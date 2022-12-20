@@ -160,70 +160,72 @@ class _FaceExtractorState extends State<FaceExtractor>
   }
 
   handleResultFile() async {
-    try {
-      setState(() {
-        isFaceExtractionLoading = true;
-      });
-      if (cameraController.value.isTakingPicture) {
-        return null;
-      }
-      // Confirming Image
-      CameraImage _cameraImage = cameraImage!;
-      await cameraController.stopImageStream();
-      XFile file = await cameraController.takePicture();
-      cameraFile = File(file.path);
-
-      bool? isPhotoConfirmed = !widget.isNeedConfirmation
-          ? true
-          : await Get.to(
-              () => FaceConfirmation(
-                cameraFile: cameraFile!,
-              ),
-            );
-      print("isPhotoConfirmed ${isPhotoConfirmed}");
-      if (isPhotoConfirmed == null || isPhotoConfirmed == false) {
-        timer!.cancel();
-        timer = null;
-        isCanPickFace = false;
-        _detectingFaces = false;
-        setState(() {
-          isFaceExtractionLoading = false;
-        });
-        initiateFaceDetection();
-        return;
-      }
-
-      // Building Cropped File
-      imglib.Image cropImage =
-          ImageService.cropFace(_cameraImage, faceDetected!);
-      cropImage = imglib.copyResizeCropSquare(cropImage, 112);
-      Directory directory = await getTemporaryDirectory();
-      File cropFile = await File('${directory.path}/${getRandomString(10)}.png')
-          .writeAsBytes(imglib.encodePng(cropImage));
-      croppedFile = cropFile;
-
-      Stopwatch stopwatch = Stopwatch()..start();
-      PhotoExtractionResult extractionResult =
-          await FaceService.createFeature(_cameraImage, faceDetected!);
-      photoFeature = extractionResult.photoFeature;
-      Duration creatingFeatureDuration = stopwatch.elapsed;
-      stopwatch.stop();
-      print(
-          "FACE FEATURE CREATED ON ${creatingFeatureDuration.inMilliseconds}ms");
-      PhotoPickResult photoPickResult = PhotoPickResult(
-        cameraFile: cameraFile!,
-        croppedFile: croppedFile!,
-        photoFeature: photoFeature,
-        extarctionTimeMs: creatingFeatureDuration.inMilliseconds,
-        modelRunTimeMs: extractionResult.modelRunTimeMs,
-      );
-      Get.back(result: photoPickResult);
-    } catch (err) {
-      print(err);
-      setState(() {
-        isFaceExtractionLoading = true;
-      });
+    // try {
+    setState(() {
+      isFaceExtractionLoading = true;
+    });
+    if (cameraController.value.isTakingPicture) {
+      return null;
     }
+    // Confirming Image
+    CameraImage _cameraImage = cameraImage!;
+    await cameraController.stopImageStream();
+    XFile file = await cameraController.takePicture();
+    cameraFile = File(file.path);
+
+    bool? isPhotoConfirmed = !widget.isNeedConfirmation
+        ? true
+        : await Get.to(
+            () => FaceConfirmation(
+              cameraFile: cameraFile!,
+            ),
+          );
+    print("isPhotoConfirmed ${isPhotoConfirmed}");
+    if (isPhotoConfirmed == null || isPhotoConfirmed == false) {
+      timer!.cancel();
+      timer = null;
+      isCanPickFace = false;
+      _detectingFaces = false;
+      setState(() {
+        isFaceExtractionLoading = false;
+      });
+      initiateFaceDetection();
+      return;
+    }
+
+    // Building Cropped File
+    imglib.Image cropImage = ImageService.cropFace(_cameraImage, faceDetected!);
+    cropImage = imglib.copyResizeCropSquare(cropImage, 112);
+    if (Platform.isIOS) {
+      cropImage = imglib.flipHorizontal(cropImage);
+    }
+    Directory directory = await getTemporaryDirectory();
+    File cropFile = await File('${directory.path}/${getRandomString(10)}.png')
+        .writeAsBytes(imglib.encodePng(cropImage));
+    croppedFile = cropFile;
+
+    Stopwatch stopwatch = Stopwatch()..start();
+    PhotoExtractionResult extractionResult =
+        await FaceService.createFeature(_cameraImage, faceDetected!);
+    photoFeature = extractionResult.photoFeature;
+    Duration creatingFeatureDuration = stopwatch.elapsed;
+    stopwatch.stop();
+    print(
+        "FACE FEATURE CREATED ON ${creatingFeatureDuration.inMilliseconds}ms");
+    PhotoPickResult photoPickResult = PhotoPickResult(
+      cameraFile: cameraFile!,
+      croppedFile: croppedFile!,
+      photoFeature: photoFeature,
+      extarctionTimeMs: creatingFeatureDuration.inMilliseconds,
+      modelRunTimeMs: extractionResult.modelRunTimeMs,
+    );
+    Get.back(result: photoPickResult);
+    // } catch (err) {
+    //   print(err);
+    //   setState(() {
+    //     isFaceExtractionLoading = true;
+    //   });
+    // }
   }
 
   String getRandomString(int length) {

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
@@ -67,7 +68,7 @@ class ImageService {
 
   static imglib.Image _convertCameraImage(CameraImage image) {
     var img = ImageService.convertToImage(image);
-    var img1 = imglib.copyRotate(img!, -90);
+    var img1 = imglib.copyRotate(img!, Platform.isAndroid ? -90 : 0);
     return img1;
   }
 
