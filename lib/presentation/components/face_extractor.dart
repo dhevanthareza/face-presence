@@ -86,8 +86,11 @@ class _FaceExtractorState extends State<FaceExtractor>
     CameraDescription description = cameras.firstWhere(
         (CameraDescription camera) =>
             camera.lensDirection == CameraLensDirection.front);
-    cameraController = CameraController(description, ResolutionPreset.high,
-        enableAudio: false);
+    cameraController = CameraController(
+      description,
+      ResolutionPreset.ultraHigh,
+      enableAudio: false,
+    );
     await cameraController.initialize();
     setState(() {
       isCameraInitialized = true;
@@ -160,13 +163,14 @@ class _FaceExtractorState extends State<FaceExtractor>
   }
 
   handleResultFile() async {
+    if (cameraController.value.isTakingPicture) {
+      return null;
+    }
     // try {
     setState(() {
       isFaceExtractionLoading = true;
     });
-    if (cameraController.value.isTakingPicture) {
-      return null;
-    }
+
     // Confirming Image
     CameraImage _cameraImage = cameraImage!;
     await cameraController.stopImageStream();
