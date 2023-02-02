@@ -106,6 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
         AppTextField(
           title: "Password",
           hintText: "Password",
+          obscureText: true,
           controller: state.passwordTextController,
         ),
         const SizedBox(

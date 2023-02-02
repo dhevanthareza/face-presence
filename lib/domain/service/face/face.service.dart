@@ -4,11 +4,8 @@ import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_jett_boilerplate/domain/entities/face/photoe_extraction_result.dart';
-import 'package:flutter_jett_boilerplate/domain/service/camera/camera_service.dart';
 import 'package:flutter_jett_boilerplate/domain/service/image/image.service.dart';
-import 'package:flutter_jett_boilerplate/domain/service/mlkit/mlkit.service.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:tflite_flutter/tflite_flutter.dart';

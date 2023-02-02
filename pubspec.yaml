@@ -72,7 +72,6 @@ flutter:
   assets:
     - assets/
     - assets/mobilefacenet_rjvysakh.tflite
-    - assets/mobile_face_net_sirius.tflite
     # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

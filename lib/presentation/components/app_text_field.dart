@@ -7,6 +7,7 @@ class AppTextField extends StatelessWidget {
   final bool obscureText;
   final TextEditingController controller;
   final Icon? prefixIcon;
+  final TextInputType? keyboardType;
   final void Function()? onTap;
   const AppTextField(
       {Key? key,
@@ -15,6 +16,7 @@ class AppTextField extends StatelessWidget {
       required this.controller,
       this.prefixIcon,
       this.onTap,
+      this.keyboardType,
       this.obscureText = false})
       : super(key: key);
 
@@ -24,6 +26,7 @@ class AppTextField extends StatelessWidget {
       cursorHeight: 20,
       controller: controller,
       obscureText: obscureText,
+      keyboardType: keyboardType,
       cursorColor: Colors.black,
       style: const TextStyle(fontSize: 15),
       onTap: onTap,

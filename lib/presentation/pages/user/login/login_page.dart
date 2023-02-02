@@ -93,6 +93,7 @@ class LoginPage extends StatelessWidget {
           title: "Password",
           hintText: "Password",
           controller: state.passwordTextController,
+          obscureText: true,
         ),
       ],
     );
