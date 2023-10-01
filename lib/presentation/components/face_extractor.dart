@@ -88,7 +88,7 @@ class _FaceExtractorState extends State<FaceExtractor>
             camera.lensDirection == CameraLensDirection.front);
     cameraController = CameraController(
       description,
-      ResolutionPreset.ultraHigh,
+      ResolutionPreset.veryHigh,
       enableAudio: false,
     );
     await cameraController.initialize();

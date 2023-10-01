@@ -36,7 +36,7 @@ dependencies:
   pretty_dio_logger: ^1.1.1
   intl: ^0.17.0
   get_storage: ^2.0.3
-  google_mlkit_face_detection: ^0.3.0
+  google_mlkit_face_detection: ^0.5.0
   load: ^1.0.0
   camera: ^0.9.6
   image: ^3.1.3
